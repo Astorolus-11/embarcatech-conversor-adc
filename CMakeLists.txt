@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(embarcatech-conversor-adc embarcatech-conversor-adc.c )
+add_executable(embarcatech-conversor-adc embarcatech-conversor-adc.c ssd1306.c)
 
 pico_set_program_name(embarcatech-conversor-adc "embarcatech-conversor-adc")
 pico_set_program_version(embarcatech-conversor-adc "0.1")
@@ -48,6 +48,7 @@ pico_enable_stdio_usb(embarcatech-conversor-adc 1)
 target_link_libraries(embarcatech-conversor-adc
         hardware_adc
         hardware_pwm
+        hardware_i2c
         pico_stdlib)
 
 # Add the standard include files to the build
