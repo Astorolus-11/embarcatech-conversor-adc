@@ -61,22 +61,32 @@ int main()
     gpio_set_irq_enabled_with_callback(botao_joy,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);//Altera o estado do LED verde
     
     while (true) {
-        //Eixo X:
+        //Eixo Y: 
         adc_select_input(0); //Pino 26 canal 0
-        uint16_t joy_x_value = adc_read(); //Lê o valor do eixo X
+        uint16_t joy_y_value = adc_read(); //Lê o valor do eixo X
         
-
         //Eixo Y:
         adc_select_input(1); //Pino 27 canal 1
-        uint16_t joy_y_value = adc_read();
+        uint16_t joy_x_value = adc_read();
        
-        printf("Valor X = %d e Valor Y = %d\n",joy_x_value,joy_y_value);
+        printf("Valor Y = %d e Valor X = %d\n",joy_y_value,joy_x_value);
         
-        if(joy_x_value>=2000 && joy_x_value<=2300 && joy_y_value>=2000 && joy_y_value<=2300){ //Desliga O LED quando estiver no meio
+        if(joy_y_value>=2000 && joy_y_value<=2300){ //Desliga O LED azul quando estiver no meio
         pwm_set_gpio_level(led_azul,0);
-        pwm_set_gpio_level(led_vermelho,0);
+        }
+
+        if(joy_x_value>=2000 && joy_x_value<=2300){ //Desliga o LED vermelho quando estiver no meio
+            pwm_set_gpio_level(led_vermelho,0);
+        }
+
+        if(joy_x_value<2000){
+            pwm_set_gpio_level(led_vermelho,4095-joy_x_value);//Como está diminuindo coloco 4095 para continuar aumentando
 
         }
+        if(joy_x_value>2300){
+            pwm_set_gpio_level(led_vermelho,joy_x_value);
+        }
+        //Preciso criar um limiar, por exemplo quando estiver a partir de 3000 o led azul e vermelho ligar, os demais casos ligar separadamente os LEDs
     
 
 
