@@ -2,7 +2,7 @@
 
 ## 1. Propósito
 O objetivo desse projeto é controlar um joystick através de conversão Analógico Digital, exibir um cursor 8x8 no display SSD1306 e controlar intensidade de 2 LEDs demonstrando domínio em conversões analógico digitais, PWM,
-interrupções e debouncing.
+interrupções, comunicação I2C e debouncing.
 
 ## 2. Vídeo de demonstração
 
