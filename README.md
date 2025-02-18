@@ -1,4 +1,4 @@
-# Projeto utilizando conversor ADC e PWM
+# Projeto utilizando ADC (Conversor Analógico Digital) e PWM (Pulse Width Modulation)
 
 ## 1. Propósito
 O objetivo desse projeto é controlar um joystick através de conversão Analógico Digital, exibir um cursor 8x8 no display SSD1306 e controlar intensidade de 2 LEDs demonstrando domínio em conversões analógico digitais, PWM,
