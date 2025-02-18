@@ -30,6 +30,8 @@ uint slice_vermelho;  //Slice para o LED vermelho
 static bool estado_pwm = true;
 static bool estado_led = false;
 ssd1306_t ssd;
+static uint8_t borda = 0;
+
 
 
 
@@ -39,6 +41,7 @@ void setup();
 static void gpio_irq_handler(uint gpio, uint32_t events); //Função de Callback da interrupção
 void i2c_setup();
 void adc_setup();
+void ifs_joy(uint16_t joy_x_value, uint16_t joy_y_value);
 
 
 
@@ -70,28 +73,34 @@ int main()
         uint16_t joy_x_value = adc_read();
        
         printf("Valor Y = %d e Valor X = %d\n",joy_y_value,joy_x_value);
+        ifs_joy(joy_x_value,joy_y_value);
         
-        if(joy_y_value>=2000 && joy_y_value<=2300){ //Desliga O LED azul quando estiver no meio
-        pwm_set_gpio_level(led_azul,0);
-        }
+        uint16_t y_cursor = ((4095 - joy_y_value)*52)/4095;
+        uint16_t x_cursor = (joy_x_value * 113)/4095;
 
-        if(joy_x_value>=2000 && joy_x_value<=2300){ //Desliga o LED vermelho quando estiver no meio
-            pwm_set_gpio_level(led_vermelho,0);
-        }
+        ssd1306_fill(&ssd,false); //Limpa a tela para atualizar a posição do quadrado 8x8
 
-        if(joy_x_value<2000){
-            pwm_set_gpio_level(led_vermelho,4095-joy_x_value);//Como está diminuindo coloco 4095 para continuar aumentando
-
+        if(borda==0){
+            ssd1306_rect(&ssd, 3, 3 , 122, 58, true, false);
+            ssd1306_rect(&ssd, 4, 4 , 120, 56, true, false);
+            
         }
-        if(joy_x_value>2300){
-            pwm_set_gpio_level(led_vermelho,joy_x_value);
+        else if(borda==1){
+            ssd1306_rect(&ssd, 2, 2, 124, 60, true ,false);
         }
-        //Preciso criar um limiar, por exemplo quando estiver a partir de 3000 o led azul e vermelho ligar, os demais casos ligar separadamente os LEDs
+        else if(borda==2){
+        
+            ssd1306_rect(&ssd, 1, 1 , 126, 62, true, false);
+                
+                
     
+            
+        }
 
+        ssd1306_rect(&ssd,y_cursor,x_cursor,8,8,true,true); // Quadrado 8x8
+        ssd1306_send_data(&ssd); //Envia os dados
 
-    
-        sleep_ms(500);
+        sleep_ms(10);//Quanto menor o tempo de espera, mais fluido o movimento
     }
 }
 void pwm_setup(){
@@ -152,10 +161,17 @@ void gpio_irq_handler(uint gpio, uint32_t events){
         }
         if(gpio_get(botao_joy)==0){
 
-            estado_led = !estado_led; //Inverte o valor do led
+            borda++;
+            if(borda>2){
+                borda=0;
 
+            }
             gpio_put(led_verde,estado_led);
+            
 
+            
+            
+           
 
         }
     }
@@ -200,3 +216,30 @@ void adc_setup(){
 
 
 }
+
+void ifs_joy(uint16_t joy_x_value, uint16_t joy_y_value){
+    if(joy_y_value>=2000 && joy_y_value<=2300){ //Desliga O LED azul quando estiver no meio
+        pwm_set_gpio_level(led_azul,0);
+        }
+
+        if(joy_x_value>=2000 && joy_x_value<=2300){ //Desliga o LED vermelho quando estiver no meio
+            pwm_set_gpio_level(led_vermelho,0);
+        }
+
+        if(joy_x_value<2000){
+            pwm_set_gpio_level(led_vermelho,4096-joy_x_value);//Como está diminuindo coloco 4095 para continuar aumentando
+
+        }
+        if(joy_y_value<2000){ 
+            pwm_set_gpio_level(led_azul,4096-joy_y_value);
+        }
+        if(joy_x_value>2300 && joy_x_value>joy_y_value){ //Acende apenas o vermelho
+            pwm_set_gpio_level(led_vermelho,joy_x_value);
+        }
+        if(joy_y_value>2300 && joy_y_value>joy_x_value){ //Acende apenas o azul
+            pwm_set_gpio_level(led_azul,joy_y_value);
+            
+        }
+}
+
+
